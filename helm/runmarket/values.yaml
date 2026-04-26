@@ -2,8 +2,8 @@ replicaCount: 1
 
 image:
   repository: gudrb963/runmarket-api
-  pullPolicy: Always
-  tag: "latest"
+  pullPolicy: IfNotPresent
+  tag: "local"
 
 nameOverride: ""
 fullnameOverride: ""
