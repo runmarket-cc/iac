@@ -65,6 +65,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.app.existingSecret }}
                   key: {{ .Values.app.secretKeys.adminPassword }}
+            - name: TURNSTILE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.existingSecret }}
+                  key: {{ .Values.app.secretKeys.turnstileSecretKey }}
             {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

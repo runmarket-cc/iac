@@ -72,6 +72,7 @@ app:
     mailPassword: mail-password
     adminEmail: admin-email
     adminPassword: admin-password
+    turnstileSecretKey: turnstile-secret-key
 
 # 외부에서 미리 생성한 k8s Secret 이름 (필수)
 # kubectl create secret generic runmarket-db-credentials \
