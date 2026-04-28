@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: gudrb963/runmarket-api
   pullPolicy: IfNotPresent
-  tag: "20260428213239"
+  tag: "20260428224036"
 
 nameOverride: ""
 fullnameOverride: ""
