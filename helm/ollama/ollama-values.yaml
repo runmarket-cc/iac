@@ -1,0 +1,32 @@
+# ollama-values.yaml
+ollama:
+  models:
+    pull:
+      - gemma4:e4b
+    run: []
+    create: []
+    clean: false
+
+persistentVolume:
+  enabled: true
+  size: 20Gi
+  storageClass: local-path
+
+service:
+  type: NodePort
+  port: 11434
+  nodePort: 31434    # 로컬 네트워크에서 접근할 포트
+
+ingress:
+  enabled: false
+
+resources:
+  requests:
+    memory: "4Gi"
+    cpu: "2"
+  limits:
+    memory: "8Gi"
+    cpu: "4"
+
+livenessProbe:
+  initialDelaySeconds: 120
