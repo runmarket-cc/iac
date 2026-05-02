@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: gudrb963/runmarket-api
+  repository: gudrb963/runmarket-pacer
   pullPolicy: IfNotPresent
   tag: "20260503020646"
 
