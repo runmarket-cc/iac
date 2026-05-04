@@ -1,0 +1,20 @@
+image:
+  repository: gudrb963/runmarket-pacer-batch
+  tag: "latest"
+
+db:
+  host: "runmarket-postgresql"
+  existingSecret: "runmarket-db-credentials"
+  secretKeys:
+    username: username
+    password: password
+    database: database
+
+app:
+  existingSecret: "runmarket-app-secrets"
+  secretKeys:
+    marathonRaceUrl: marathon-race-url
+    mailPassword: mail-password
+    adminEmail: admin-email
+    adminPassword: admin-password
+    turnstileSecretKey: turnstile-secret-key
