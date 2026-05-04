@@ -1,0 +1,78 @@
+{{- if .Values.batch.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: race-crawl-
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "runmarket.labels" . | nindent 4 }}
+    app.kubernetes.io/name: race-crawl
+spec:
+  ttlSecondsAfterFinished: 86400
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: race-crawl
+          image: "{{ .Values.batchImage.repository }}:{{ .Values.batchImage.tag }}"
+          imagePullPolicy: Always
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: SPRING_BATCH_JOB_NAME
+              value: "raceCrawlJob"
+            - name: MARATHON_RACE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.existingSecret }}
+                  key: {{ .Values.app.secretKeys.marathonRaceUrl }}
+            - name: DB_HOST
+              value: {{ include "runmarket.postgresql.host" . | quote }}
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.existingSecret }}
+                  key: {{ .Values.db.secretKeys.database }}
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.existingSecret }}
+                  key: {{ .Values.db.secretKeys.username }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.existingSecret }}
+                  key: {{ .Values.db.secretKeys.password }}
+            - name: MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.existingSecret }}
+                  key: {{ .Values.app.secretKeys.mailPassword }}
+            - name: ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.existingSecret }}
+                  key: {{ .Values.app.secretKeys.adminEmail }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.existingSecret }}
+                  key: {{ .Values.app.secretKeys.adminPassword }}
+            - name: TURNSTILE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.existingSecret }}
+                  key: {{ .Values.app.secretKeys.turnstileSecretKey }}
+            - name: MARATHON_RACE_STATE_FILE
+              value: "/batch-state/crawl_state.json"
+          volumeMounts:
+            - name: batch-state
+              mountPath: /batch-state
+      volumes:
+        - name: batch-state
+          hostPath:
+            path: /data/runmarket/batch
+            type: DirectoryOrCreate
+{{- end }}
