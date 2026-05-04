@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: race-crawl
     app.kubernetes.io/instance: {{ .Release.Name }}
   annotations:
-    "helm.sh/hook": post-install
+    "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
 spec:
   ttlSecondsAfterFinished: 86400
