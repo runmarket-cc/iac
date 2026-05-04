@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: gudrb963/runmarket-pacer
   pullPolicy: IfNotPresent
-  tag: "20260503021644"
+  tag: "20260504234720"
 
 nameOverride: ""
 fullnameOverride: ""
@@ -89,7 +89,7 @@ db:
 
 batchImage:
   repository: gudrb963/runmarket-pacer-batch
-  tag: "latest"
+  tag: "20260504234720"
 
 batch:
   enabled: false
