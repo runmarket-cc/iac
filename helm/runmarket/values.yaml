@@ -91,9 +91,6 @@ batchImage:
   repository: gudrb963/runmarket-pacer-batch
   tag: "20260505001744"
 
-batch:
-  enabled: false
-
 postgresql:
   enabled: true
   image:

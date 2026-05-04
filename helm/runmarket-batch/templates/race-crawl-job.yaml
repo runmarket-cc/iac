@@ -1,12 +1,11 @@
-{{- if .Values.batch.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: race-crawl-
+  name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "runmarket.labels" . | nindent 4 }}
     app.kubernetes.io/name: race-crawl
+    app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   ttlSecondsAfterFinished: 86400
   template:
@@ -14,7 +13,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: race-crawl
-          image: "{{ .Values.batchImage.repository }}:{{ .Values.batchImage.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: Always
           env:
             - name: SPRING_PROFILES_ACTIVE
@@ -27,7 +26,7 @@ spec:
                   name: {{ .Values.app.existingSecret }}
                   key: {{ .Values.app.secretKeys.marathonRaceUrl }}
             - name: DB_HOST
-              value: {{ include "runmarket.postgresql.host" . | quote }}
+              value: {{ .Values.db.host | quote }}
             - name: DB_PORT
               value: "5432"
             - name: DB_NAME
@@ -75,4 +74,3 @@ spec:
           hostPath:
             path: /data/runmarket/batch
             type: DirectoryOrCreate
-{{- end }}
