@@ -73,6 +73,7 @@ app:
     adminEmail: admin-email
     adminPassword: admin-password
     turnstileSecretKey: turnstile-secret-key
+    marathonRaceUrl: marathon-race-url
 
 # 외부에서 미리 생성한 k8s Secret 이름 (필수)
 # kubectl create secret generic runmarket-db-credentials \
@@ -85,6 +86,13 @@ db:
     username: username
     password: password
     database: database
+
+batchImage:
+  repository: gudrb963/runmarket-pacer-batch
+  tag: "latest"
+
+batch:
+  enabled: false
 
 postgresql:
   enabled: true
