@@ -70,6 +70,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.app.existingSecret }}
                   key: {{ .Values.app.secretKeys.turnstileSecretKey }}
+            - name: SEOUL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.existingSecret }}
+                  key: {{ .Values.app.secretKeys.seoulApiKey }}
             {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
