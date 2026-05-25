@@ -74,6 +74,8 @@ spec:
                   key: {{ .Values.app.secretKeys.jwtSecret }}
             - name: MARATHON_RACE_STATE_FILE
               value: "/batch-state/crawl_state.json"
+            - name: FORCE_RESET
+              value: {{ .Values.forceReset | quote }}
           volumeMounts:
             - name: batch-state
               mountPath: /batch-state

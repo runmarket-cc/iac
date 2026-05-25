@@ -2,6 +2,8 @@ image:
   repository: gudrb963/runmarket-pacer-batch
   tag: "20260525224753"
 
+forceReset: false
+
 db:
   host: "runmarket-postgresql"
   existingSecret: "runmarket-db-credentials"
