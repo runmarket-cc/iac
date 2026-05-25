@@ -1,6 +1,6 @@
 image:
   repository: gudrb963/runmarket-pacer-batch
-  tag: "20260525165524"
+  tag: "20260525170306"
 
 db:
   host: "runmarket-postgresql"
