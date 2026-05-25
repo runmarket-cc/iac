@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: gudrb963/runmarket-pacer-socket
   pullPolicy: IfNotPresent
-  tag: "20260525213323"
+  tag: "20260525220822"
 
 nameOverride: ""
 fullnameOverride: ""
