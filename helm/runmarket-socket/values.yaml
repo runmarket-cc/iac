@@ -1,0 +1,94 @@
+replicaCount: 1
+
+image:
+  repository: gudrb963/runmarket-pacer-socket
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8081
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  hosts:
+    - host: pulse.runmarket.cc
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources: {}
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+env:
+  - name: SPRING_PROFILES_ACTIVE
+    value: "prod"
+
+# 외부에서 미리 생성한 k8s Secret 이름 (필수)
+# kubectl create secret generic runmarket-socket-secrets \
+#   --from-literal=jwt-secret=<YOUR_JWT_SECRET> \
+#   --from-literal=redis-username=<REDIS_USERNAME> \
+#   --from-literal=redis-password=<REDIS_PASSWORD>
+
+app:
+  existingSecret: "runmarket-app-secrets"
+  secretKeys:
+    jwtSecret: jwt-secret
+
+# 외부에서 미리 생성한 k8s Secret 이름 (필수)
+# kubectl create secret generic runmarket-db-credentials \
+#   --from-literal=username=<DB_USERNAME> \
+#   --from-literal=password=<DB_PASSWORD> \
+#   --from-literal=database=<DB_NAME>
+db:
+  existingSecret: "runmarket-redis-credentials"
+  secretKeys:
+    redisPassword: redis-password
+
+# Redis 설정
+# enabled: true 이면 차트 내에 Redis Alpine 파드가 함께 배포됨
+redis:
+  enabled: true
+  image:
+    tag: "8.6.3-alpine"
+  port: "6379"
+  persistence:
+    size: 256Mi
