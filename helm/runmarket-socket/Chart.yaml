@@ -1,0 +1,6 @@
+apiVersion: v2
+name: runmarket-socket
+description: Runmarket WebSocket Server with Redis
+type: application
+version: 0.1.0
+appVersion: "local"
