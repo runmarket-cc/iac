@@ -67,6 +67,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.app.existingSecret }}
                   key: {{ .Values.app.secretKeys.turnstileSecretKey }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.existingSecret }}
+                  key: {{ .Values.app.secretKeys.jwtSecret }}
             - name: MARATHON_RACE_STATE_FILE
               value: "/batch-state/crawl_state.json"
           volumeMounts:

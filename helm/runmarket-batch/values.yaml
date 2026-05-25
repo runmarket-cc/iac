@@ -18,3 +18,4 @@ app:
     adminEmail: admin-email
     adminPassword: admin-password
     turnstileSecretKey: turnstile-secret-key
+    jwtSecret: jwt-secret
