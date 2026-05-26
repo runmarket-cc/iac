@@ -1,4 +1,10 @@
-replicaCount: 1
+replicaCount: 3
+
+# Rolling Update 시 기존 WebSocket 연결 보호
+# preStopSleepSeconds: SIGTERM 수신 후 실제 종료까지 대기 시간 (클라이언트 재접속 시간)
+# terminationGracePeriodSeconds: preStopSleepSeconds보다 충분히 크게 설정
+preStopSleepSeconds: 30
+terminationGracePeriodSeconds: 60
 
 image:
   repository: gudrb963/runmarket-pacer-socket
