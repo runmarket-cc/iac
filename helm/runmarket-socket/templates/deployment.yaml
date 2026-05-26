@@ -17,10 +17,15 @@ spec:
         {{- include "runmarket-socket.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ include "runmarket-socket.serviceAccountName" . }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       containers:
         - name: socket
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep {{ .Values.preStopSleepSeconds }}"]
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
