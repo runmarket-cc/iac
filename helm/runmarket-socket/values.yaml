@@ -9,7 +9,7 @@ terminationGracePeriodSeconds: 60
 image:
   repository: gudrb963/runmarket-pacer-socket
   pullPolicy: IfNotPresent
-  tag: "20260530224647"
+  tag: "20260603181957"
 
 nameOverride: ""
 fullnameOverride: ""
