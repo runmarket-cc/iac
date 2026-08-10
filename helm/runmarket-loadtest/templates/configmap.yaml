@@ -57,16 +57,39 @@ data:
       const socketToken = tokenRes.json('accessToken');
       const wsUrl = `${WS_BASE_URL}/ws/runner/${runnerId}?token=${socketToken}`;
 
-      // 2. WebSocket 실시간 위치 전송 (Runner 모사)
+      // 러너별 고유 시작 위치 (VU 번호에 따라 서울 지역 전역으로 궤적 분산)
+      const baseLat = 37.5665;
+      const baseLng = 126.9780;
+      const spiralAngle = (__VU * 137.5) * (Math.PI / 180);
+      const spiralRadius = 0.003 + ((__VU % 50) * 0.0003); // 300m ~ 3km 범위로 넓게 분산
+
+      let currentLat = baseLat + (Math.sin(spiralAngle) * spiralRadius);
+      let currentLng = baseLng + (Math.cos(spiralAngle) * spiralRadius);
+
+      // 러너별 이동 방향 (Heading) 및 속도 (초당 약 3m 전진, 페이스 5:30/km 수준)
+      const heading = ((__VU * 45) + (__ITER * 15)) * (Math.PI / 180);
+      const speedMetersPerSec = 2.8 + ((__VU % 10) * 0.1); // 2.8m/s ~ 3.7m/s
+      const dLat = (speedMetersPerSec / 111000) * Math.sin(heading);
+      const dLng = (speedMetersPerSec / 88800) * Math.cos(heading);
+
+      let accumulatedDistance = 0.0;
+      let elapsedTime = 0;
+
+      // 2. WebSocket 연결 및 지속적인 실시간 이동 좌표 Publish (30초 동안 지속 런)
       const wsRes = ws.connect(wsUrl, {}, function (socket) {
         socket.on('open', function () {
-          for (let i = 0; i < 5; i++) {
+          for (let i = 0; i < 30; i++) {
+            currentLat += dLat;
+            currentLng += dLng;
+            accumulatedDistance += (speedMetersPerSec / 1000.0);
+            elapsedTime += 1;
+
             const gpsPayload = JSON.stringify({
-              lat: 37.5665 + (Math.random() * 0.001),
-              lng: 126.9780 + (Math.random() * 0.001),
+              lat: parseFloat(currentLat.toFixed(6)),
+              lng: parseFloat(currentLng.toFixed(6)),
               pace: "5:30",
-              distance: 1.0 + (i * 0.1),
-              time: 60 + i
+              distance: parseFloat(accumulatedDistance.toFixed(2)),
+              time: elapsedTime
             });
 
             socket.send(gpsPayload);
