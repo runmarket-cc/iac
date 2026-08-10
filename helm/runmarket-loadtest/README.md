@@ -12,12 +12,12 @@ Runmarket `pacer` 서비스 (REST API & WebSocket) 부하테스트를 위한 Hel
 
 ### 1. K3s 내부 서비스 주소 타겟팅 (기본 1단계 테스트)
 ```bash
-helm install pacer-test ./helm/runmarket-loadtest
+helm install pacer-test ./helm/runmarket-loadtest -n applications
 ```
 
 ### 2. 가상 유저(VUs) 및 지속시간 오버라이드 실행
 ```bash
-helm install pacer-test ./helm/runmarket-loadtest \
+helm install pacer-test ./helm/runmarket-loadtest -n applications \
   --set loadProfile.vus=100 \
   --set loadProfile.duration=5m
 ```
