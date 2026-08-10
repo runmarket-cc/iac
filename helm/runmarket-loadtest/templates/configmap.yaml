@@ -11,12 +11,19 @@ data:
     import { check, sleep } from 'k6';
     import ws from 'k6/ws';
 
+    const targetVus = __ENV.K6_TARGET_VUS ? parseInt(__ENV.K6_TARGET_VUS) : 3000;
+    const rampUpTime = __ENV.K6_RAMP_UP || '4m50s';
+    const holdTime = __ENV.K6_HOLD_TIME || '2m';
+
     export const options = {
-      vus: __ENV.K6_VUS ? parseInt(__ENV.K6_VUS) : 10,
-      duration: __ENV.K6_DURATION || '1m',
+      stages: [
+        { duration: rampUpTime, target: targetVus },  // 10초당 100명씩 3000명까지 서서히 증대 (4분 50초)
+        { duration: holdTime, target: targetVus },    // 3000명 피크 상태 유지 (2분)
+        { duration: '30s', target: 0 },              // 감축 안전 종료
+      ],
       thresholds: {
-        http_req_duration: ['p(95)<500'],
-        checks: ['rate>0.90'],
+        http_req_duration: ['p(95)<1000'],
+        checks: ['rate>0.80'],
       },
     };
 

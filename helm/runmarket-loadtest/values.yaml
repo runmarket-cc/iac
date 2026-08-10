@@ -11,8 +11,9 @@ target:
   # wsBaseUrl: "wss://pulse.runmarket.cc"
 
 loadProfile:
-  vus: 500            # 동시 접속자 500명 (500 Virtual Users)
-  duration: "2m"      # 부하 테스트 지속 시간 (2분)
+  targetVus: 3000       # 최대 목표 동시 접속자 수 (3000 VUs)
+  rampUpTime: "4m50s"   # 10초당 100명씩 서서히 증가 (총 4분 50초 소요)
+  holdTime: "2m"        # 3000명 도달 후 피크 부하 유지 시간 (2분)
 
 k6:
   image:
