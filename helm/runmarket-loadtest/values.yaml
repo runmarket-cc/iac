@@ -5,14 +5,14 @@ target:
   apiBaseUrl: "http://runmarket.applications.svc.cluster.local:80"
   wsBaseUrl: "ws://runmarket-socket.applications.svc.cluster.local:80"
   # 인증이 필요한 API 호출 시 사용할 Bearer JWT 토큰
-  authToken: ""
+  authToken: "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJndWRyYjk2M0BuYXZlci5jb20iLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzg2MzY2Njc2LCJleHAiOjE3ODg5NTg2NzZ9.Qe3mMAqLmQmivDPy2hQGWzq9ojBe5FOpyX4LmcAxYUMxyaOEhSSWVZRJOppFJfcooZjPTrVqTC5wYKGSqwpB7A"
   # 외부 도메인 테스트 시 예시:
   # apiBaseUrl: "https://api.runmarket.cc"
   # wsBaseUrl: "wss://pulse.runmarket.cc"
 
 loadProfile:
-  vus: 50             # 동시 가상 유저 수 (Virtual Users)
-  duration: "2m"      # 부하 테스트 지속 시간 (예: 30s, 2m, 5m)
+  vus: 5              # 안전한 5명 동시 접속(VU)부터 시작하여 단계별로 상향
+  duration: "1m"      # 부하 테스트 지속 시간 (예: 30s, 1m, 5m)
 
 k6:
   image:
