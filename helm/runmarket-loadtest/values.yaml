@@ -11,8 +11,8 @@ target:
   # wsBaseUrl: "wss://pulse.runmarket.cc"
 
 loadProfile:
-  vus: 5              # 안전한 5명 동시 접속(VU)부터 시작하여 단계별로 상향
-  duration: "1m"      # 부하 테스트 지속 시간 (예: 30s, 1m, 5m)
+  vus: 500            # 동시 접속자 500명 (500 Virtual Users)
+  duration: "2m"      # 부하 테스트 지속 시간 (2분)
 
 k6:
   image:
