@@ -10,6 +10,12 @@ data:
     import http from 'k6/http';
     import { check, sleep } from 'k6';
     import ws from 'k6/ws';
+    import { Counter, Trend } from 'k6/metrics';
+
+    // 부하테스트 검증용 커스텀 메트릭
+    const gpsMessagesSent = new Counter('gps_messages_sent');
+    const runnerDistanceTrend = new Trend('runner_moved_distance_meters');
+    const runnerTimeTrend = new Trend('runner_elapsed_seconds');
 
     const targetVus = __ENV.K6_TARGET_VUS ? parseInt(__ENV.K6_TARGET_VUS) : 3000;
     const rampUpTime = __ENV.K6_RAMP_UP || '4m50s';
@@ -56,7 +62,6 @@ data:
       });
 
       if (!tokenSuccess) {
-        // 인증 실패 또는 오류 발생 시 1초 대기 후 다음 iteration 진행 (무한 연쇄 폭주 방지)
         sleep(1);
         return;
       }
@@ -91,17 +96,32 @@ data:
             accumulatedDistance += (speedMetersPerSec / 1000.0);
             elapsedTime += 1;
 
+            const latStr = currentLat.toFixed(6);
+            const lngStr = currentLng.toFixed(6);
+            const distStr = accumulatedDistance.toFixed(2);
+
             const gpsPayload = JSON.stringify({
-              lat: parseFloat(currentLat.toFixed(6)),
-              lng: parseFloat(currentLng.toFixed(6)),
+              lat: parseFloat(latStr),
+              lng: parseFloat(lngStr),
               pace: "5:30",
-              distance: parseFloat(accumulatedDistance.toFixed(2)),
+              distance: parseFloat(distStr),
               time: elapsedTime
             });
 
             socket.send(gpsPayload);
+            gpsMessagesSent.add(1);
+
+            // 특정 샘플 유저(50번째 VU마다)는 5초 주기로 실시간 이동 좌표 로그를 출력하여 모니터링 가능하도록 함
+            if (__VU % 50 === 1 && i % 5 === 0) {
+              console.log(`[VU ${__VU} / ${runnerId}] 🏃 RUNNING -> Lat: ${latStr}, Lng: ${lngStr}, Dist: ${(accumulatedDistance * 1000).toFixed(1)}m, Time: ${elapsedTime}s`);
+            }
+
             sleep(1);
           }
+
+          // 러너 1회 주행 완료 후 커스텀 메트릭 기록
+          runnerDistanceTrend.add(accumulatedDistance * 1000.0); // m 단위
+          runnerTimeTrend.add(elapsedTime); // 초 단위
           socket.close();
         });
 
