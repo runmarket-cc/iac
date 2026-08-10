@@ -69,25 +69,32 @@ data:
       const socketToken = tokenRes.json('accessToken');
       const wsUrl = `${WS_BASE_URL}/ws/runner/${runnerId}?token=${socketToken}`;
 
-      // 러너별 고유 시작 위치 (VU 번호에 따라 서울 지역 전역으로 궤적 분산)
-      const baseLat = 37.5665;
-      const baseLng = 126.9780;
-      const spiralAngle = (__VU * 137.5) * (Math.PI / 180);
-      const spiralRadius = 0.003 + ((__VU % 50) * 0.0003); // 300m ~ 3km 범위로 넓게 분산
+      // 경복궁 둘레길 코스 중심점 (광화문 - 삼청동 - 청와대 - 효자동 둘레 2.4km 코스)
+      // 광화문: 37.5760, 126.9768 | 삼청동: 37.5775, 126.9800 | 청와대: 37.5840, 126.9750 | 효자동: 37.5790, 126.9720
+      const gyeongbokGungLat = 37.5796;
+      const gyeongbokGungLng = 126.9770;
 
-      let currentLat = baseLat + (Math.sin(spiralAngle) * spiralRadius);
-      let currentLng = baseLng + (Math.cos(spiralAngle) * spiralRadius);
+      // VU 번호에 따라 경복궁 4대 문(광화문, 신무문, 영추문, 건춘문) 주변 시작 위치 분산
+      const startAngle = (__VU * 137.5) * (Math.PI / 180);
+      const startRadius = 0.0015 + ((__VU % 40) * 0.0001); // 경복궁 담장 둘레 150m ~ 500m 반경 내 스타트
 
-      // 러너별 이동 방향 (Heading) 및 속도 (초당 약 3m 전진, 페이스 5:30/km 수준)
-      const heading = ((__VU * 45) + (__ITER * 15)) * (Math.PI / 180);
-      const speedMetersPerSec = 2.8 + ((__VU % 10) * 0.1); // 2.8m/s ~ 3.7m/s
+      let currentLat = gyeongbokGungLat + (Math.sin(startAngle) * startRadius);
+      let currentLng = gyeongbokGungLng + (Math.cos(startAngle) * startRadius);
+
+      // 경복궁 둘레길 순환 방향 (짝수 VU: 시계방향, 홀수 VU: 반시계방향)
+      const isClockwise = (__VU % 2 === 0);
+      const initialHeading = isClockwise ? (Math.PI / 2) : (-Math.PI / 2);
+      const heading = (startAngle + initialHeading);
+
+      // 초당 전진 속도 (약 2.7m/s ~ 3.5m/s, 페이스 4:40~6:00/km)
+      const speedMetersPerSec = 2.7 + ((__VU % 9) * 0.1);
       const dLat = (speedMetersPerSec / 111000) * Math.sin(heading);
       const dLng = (speedMetersPerSec / 88800) * Math.cos(heading);
 
       let accumulatedDistance = 0.0;
       let elapsedTime = 0;
 
-      // 2. WebSocket 연결 및 지속적인 실시간 이동 좌표 Publish (30초 동안 지속 런)
+      // 2. WebSocket 연결 및 지속적인 실시간 경복궁 런 좌표 Publish (30초간 연속 주행)
       const wsRes = ws.connect(wsUrl, {}, function (socket) {
         socket.on('open', function () {
           for (let i = 0; i < 30; i++) {
@@ -103,7 +110,7 @@ data:
             const gpsPayload = JSON.stringify({
               lat: parseFloat(latStr),
               lng: parseFloat(lngStr),
-              pace: "5:30",
+              pace: "5:15",
               distance: parseFloat(distStr),
               time: elapsedTime
             });
@@ -111,9 +118,9 @@ data:
             socket.send(gpsPayload);
             gpsMessagesSent.add(1);
 
-            // 특정 샘플 유저(50번째 VU마다)는 5초 주기로 실시간 이동 좌표 로그를 출력하여 모니터링 가능하도록 함
+            // 특정 샘플 유저(50번째 VU마다)는 5초 주기로 경복궁 실시간 이동 좌표 로그 출력
             if (__VU % 50 === 1 && i % 5 === 0) {
-              console.log(`[VU ${__VU} / ${runnerId}] 🏃 RUNNING -> Lat: ${latStr}, Lng: ${lngStr}, Dist: ${(accumulatedDistance * 1000).toFixed(1)}m, Time: ${elapsedTime}s`);
+              console.log(`[VU ${__VU} / ${runnerId}] 🏯 경복궁 둘레길 런 -> Lat: ${latStr}, Lng: ${lngStr}, Dist: ${(accumulatedDistance * 1000).toFixed(1)}m, Time: ${elapsedTime}s`);
             }
 
             sleep(1);
