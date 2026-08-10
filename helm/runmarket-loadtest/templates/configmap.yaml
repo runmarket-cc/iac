@@ -23,6 +23,8 @@ data:
     const API_BASE_URL = __ENV.API_BASE_URL || 'http://runmarket:80';
     const WS_BASE_URL = __ENV.WS_BASE_URL || 'ws://runmarket-socket:8081';
 
+    const AUTH_BEARER_TOKEN = __ENV.AUTH_BEARER_TOKEN || '';
+
     export default function () {
       const runnerId = `runner-vu-${__VU}-${__ITER}`;
       const groupId = 'GROUP-TEST-01';
@@ -35,14 +37,20 @@ data:
       });
 
       const headers = { 'Content-Type': 'application/json' };
+      if (AUTH_BEARER_TOKEN) {
+        headers['Authorization'] = `Bearer ${AUTH_BEARER_TOKEN}`;
+      }
+
       const tokenRes = http.post(`${API_BASE_URL}/api/v1/socket-token`, tokenPayload, { headers });
       
       const tokenSuccess = check(tokenRes, {
         '1. Socket Token HTTP 200': (r) => r.status === 200,
-        '1. Socket Token Received': (r) => r.json('accessToken') !== undefined,
+        '1. Socket Token Received': (r) => r.json() && r.json('accessToken') !== undefined,
       });
 
       if (!tokenSuccess) {
+        // 인증 실패 또는 오류 발생 시 1초 대기 후 다음 iteration 진행 (무한 연쇄 폭주 방지)
+        sleep(1);
         return;
       }
 
