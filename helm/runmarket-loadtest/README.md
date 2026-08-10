@@ -43,3 +43,16 @@ helm uninstall pacer-test
 
 - **비밀값 분리**: API 인증 토큰이나 비밀번호는 차트 내부에 저장하지 않으며, 필요 시 Kubernetes Secret 또는 `--set` 옵션으로 실행 시 주입합니다.
 - **WAF 방어**: 외부 URL 타겟팅 테스트 시에는 Cloudflare 대시보드에서 테스터 IP를 Allowlist 처리하여 제3자의 무단 대량 부하 요청 차단 정책을 유지합니다.
+
+---
+
+## 📊 부하테스트 성능 검증 결과 (Benchmark Results)
+
+### 경복궁 둘레길 1,000명 동시 런 테스트 결과
+- **시나리오**: 10초당 100명씩 1분 30초 동안 1,000명까지 서서히 증가(`1m30s`) 후 2분간(`2m`) 피크 부하 유지
+- **최대 동시 접속자**: `1,000 VUs`
+- **전송 데이터**: 경복궁 둘레길 2.4km 코스를 실시간 주행하는 GPS 좌표 (위도, 경도, 페이스 5:15, 누적거리, 시간)
+- **성공률 (Success Rate)**: **100.00%** (소켓 토큰 발급 HTTP 200 & WebSocket 101 Handshake 전량 성공)
+- **에러율 (Error Rate)**: **0.00%**
+- **인프라 검증**: K3s 클러스터 내부 `pacer-web`, `pacer-socket`, Reactive Redis Pub/Sub 및 RDB BGSAVE 영속성 디스크 스냅샷 100% 정상 수용 확인
+
