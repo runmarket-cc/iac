@@ -1,9 +1,9 @@
 enabled: true
 
 target:
-  # 기본값: K3s 내부 서비스(svc) 주소 (Cloudflare/Ingress 영향을 배제한 순수 백엔드 측정)
-  apiBaseUrl: "http://runmarket:80"
-  wsBaseUrl: "ws://runmarket-socket:8081"
+  # 기본값: K3s 내부 서비스(svc) FQDN 주소 (applications 네임스페이스)
+  apiBaseUrl: "http://runmarket.applications.svc.cluster.local:80"
+  wsBaseUrl: "ws://runmarket-socket.applications.svc.cluster.local:80"
   # 외부 도메인 테스트 시 예시:
   # apiBaseUrl: "https://api.runmarket.cc"
   # wsBaseUrl: "wss://pulse.runmarket.cc"
