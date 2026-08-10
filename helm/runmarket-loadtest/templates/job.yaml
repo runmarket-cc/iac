@@ -1,0 +1,38 @@
+{{- if .Values.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "runmarket-loadtest.fullname" . }}-job
+  labels:
+    app.kubernetes.io/name: {{ include "runmarket-loadtest.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "runmarket-loadtest.name" . }}
+    spec:
+      containers:
+      - name: k6
+        image: "{{ .Values.k6.image.repository }}:{{ .Values.k6.image.tag }}"
+        imagePullPolicy: {{ .Values.k6.image.pullPolicy }}
+        command: ["k6", "run", "/scripts/pacer_load_test.js"]
+        env:
+        - name: API_BASE_URL
+          value: {{ .Values.target.apiBaseUrl | quote }}
+        - name: WS_BASE_URL
+          value: {{ .Values.target.wsBaseUrl | quote }}
+        - name: K6_VUS
+          value: {{ .Values.loadProfile.vus | quote }}
+        - name: K6_DURATION
+          value: {{ .Values.loadProfile.duration | quote }}
+        volumeMounts:
+        - name: script-volume
+          mountPath: /scripts
+      restartPolicy: Never
+      volumes:
+      - name: script-volume
+        configMap:
+          name: {{ .Release.Name }}-script
+  backoffLimit: 0
+{{- end -}}

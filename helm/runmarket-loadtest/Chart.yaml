@@ -1,0 +1,6 @@
+apiVersion: v2
+name: runmarket-loadtest
+description: k6 load testing Helm chart for Runmarket Pacer (REST API & WebSocket)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
