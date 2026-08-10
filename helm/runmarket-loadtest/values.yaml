@@ -4,6 +4,8 @@ target:
   # 기본값: K3s 내부 서비스(svc) FQDN 주소 (applications 네임스페이스)
   apiBaseUrl: "http://runmarket.applications.svc.cluster.local:80"
   wsBaseUrl: "ws://runmarket-socket.applications.svc.cluster.local:80"
+  # 인증이 필요한 API 호출 시 사용할 Bearer JWT 토큰
+  authToken: ""
   # 외부 도메인 테스트 시 예시:
   # apiBaseUrl: "https://api.runmarket.cc"
   # wsBaseUrl: "wss://pulse.runmarket.cc"

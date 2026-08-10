@@ -22,6 +22,8 @@ spec:
           value: {{ .Values.target.apiBaseUrl | quote }}
         - name: WS_BASE_URL
           value: {{ .Values.target.wsBaseUrl | quote }}
+        - name: AUTH_BEARER_TOKEN
+          value: {{ .Values.target.authToken | quote }}
         - name: K6_VUS
           value: {{ .Values.loadProfile.vus | quote }}
         - name: K6_DURATION
