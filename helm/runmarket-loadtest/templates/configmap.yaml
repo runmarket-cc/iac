@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-script
+  labels:
+    app.kubernetes.io/name: {{ include "runmarket-loadtest.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  pacer_load_test.js: |
+    import http from 'k6/http';
+    import { check, sleep } from 'k6';
+    import ws from 'k6/ws';
+
+    export const options = {
+      vus: __ENV.K6_VUS ? parseInt(__ENV.K6_VUS) : 10,
+      duration: __ENV.K6_DURATION || '1m',
+      thresholds: {
+        http_req_duration: ['p(95)<500'],
+        checks: ['rate>0.90'],
+      },
+    };
+
+    const API_BASE_URL = __ENV.API_BASE_URL || 'http://runmarket:80';
+    const WS_BASE_URL = __ENV.WS_BASE_URL || 'ws://runmarket-socket:8081';
+
+    export default function () {
+      const runnerId = `runner-vu-${__VU}-${__ITER}`;
+      const groupId = 'GROUP-TEST-01';
+
+      // 1. 소켓 토큰 발급 (REST API)
+      const tokenPayload = JSON.stringify({
+        role: 'RUNNER',
+        groupId: groupId,
+        runnerId: runnerId,
+      });
+
+      const headers = { 'Content-Type': 'application/json' };
+      const tokenRes = http.post(`${API_BASE_URL}/api/v1/socket-token`, tokenPayload, { headers });
+      
+      const tokenSuccess = check(tokenRes, {
+        '1. Socket Token HTTP 200': (r) => r.status === 200,
+        '1. Socket Token Received': (r) => r.json('accessToken') !== undefined,
+      });
+
+      if (!tokenSuccess) {
+        return;
+      }
+
+      const socketToken = tokenRes.json('accessToken');
+      const wsUrl = `${WS_BASE_URL}/ws/runner/${runnerId}?token=${socketToken}`;
+
+      // 2. WebSocket 실시간 위치 전송 (Runner 모사)
+      const wsRes = ws.connect(wsUrl, {}, function (socket) {
+        socket.on('open', function () {
+          for (let i = 0; i < 5; i++) {
+            const gpsPayload = JSON.stringify({
+              lat: 37.5665 + (Math.random() * 0.001),
+              lng: 126.9780 + (Math.random() * 0.001),
+              pace: "5:30",
+              distance: 1.0 + (i * 0.1),
+              time: 60 + i
+            });
+
+            socket.send(gpsPayload);
+            sleep(1);
+          }
+          socket.close();
+        });
+
+        socket.on('error', function (e) {
+          // WS error handling
+        });
+      });
+
+      check(wsRes, {
+        '2. WebSocket Connection 101': (r) => r && r.status === 101,
+      });
+
+      sleep(1);
+    }
