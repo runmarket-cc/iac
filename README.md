@@ -52,7 +52,7 @@
 | 차트 디렉토리 | 서비스 명 | 상세 설명 | 비고 |
 |---|---|---|---|
 | **`helm/runmarket`** | REST API & DB | Spring Boot 기반 웹 API (`web`) 및 PostgreSQL 데이터베이스 배포 | `api.runmarket.cc` |
-| **`helm/runmarket-socket`** | WebSocket & Redis | Spring WebFlux 고성능 위치 중계 서버 (`socket`) 및 Redis Pub/Sub 배포 | `pulse.runmarket.cc` |
+| **`helm/runmarket-socket`** | WebSocket & Redis | Spring WebFlux 기반 실시간 위치 중계 서버 (`socket`) 및 Redis Pub/Sub 배포 | `pulse.runmarket.cc` |
 | **`helm/runmarket-batch`** | Batch Crawler | 마라톤 및 대회 데이터 자동 수집 Spring Batch 디몬 | CronJob / Deployment |
 | **`helm/runmarket-loadtest`** | k6 Load Test | K3s 내부 서비스 타겟팅 경복궁 둘레길 런 k6 부하테스트 차트 | [상세 가이드](./helm/runmarket-loadtest/README.md) |
 | **`helm/ollama`** | AI Inference | Ollama LLM 추론 서버 배포 차트 | NodePort |
@@ -124,7 +124,7 @@ helm install databasus oci://ghcr.io/databasus/charts/databasus \
 
 ## ⚡ 부하테스트 실행 (`runmarket-loadtest`)
 
-부하테스트 관련 시나리오, 파라미터 설정 및 벤치마크 검증 결과는 차트 전용 README인 [`helm/runmarket-loadtest/README.md`](./helm/runmarket-loadtest/README.md)에서 확인하실 수 있습니다.
+부하테스트 차트의 실행 방법과 기존 예비 실험의 범위·한계는 차트 전용 README인 [`helm/runmarket-loadtest/README.md`](./helm/runmarket-loadtest/README.md)에서 확인하실 수 있습니다.
 
 ```bash
 # k6 부하테스트 실행
